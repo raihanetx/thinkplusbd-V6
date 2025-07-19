@@ -476,6 +476,7 @@ $current_total_pending_all_time = getCurrentTotalPendingOrders($all_site_orders_
             <nav class="admin-nav">
                 <ul>
                     <li><a href="admin_dashboard.php" class="<?php echo (strpos($_SERVER['REQUEST_URI'], 'admin_dashboard.php') !== false && empty($_GET['page']) && strpos($_SERVER['REQUEST_URI'], 'product_code_generator.html') === false) ? 'active' : ''; ?>"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a></li>
+                    <li><a href="admin_dashboard.php?page=categories" class="<?php echo (isset($_GET['page']) && $_GET['page'] === 'categories') ? 'active' : ''; ?>"><i class="fas fa-tags"></i> <span>Manage Categories</span></a></li>
                     <li><a href="product_code_generator.html" target="_blank"><i class="fas fa-plus-circle"></i> <span>Add Product Helper</span></a></li>
                     <li><a href="admin_dashboard.php?logout=1"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
                 </ul>
@@ -490,6 +491,79 @@ $current_total_pending_all_time = getCurrentTotalPendingOrders($all_site_orders_
                 <a href="admin_dashboard.php?logout=1" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </header>
             <div class="admin-page-content">
+            <?php if (isset($_GET['page']) && $_GET['page'] === 'categories'): ?>
+                <div class="content-card">
+                    <h2 class="card-title">Manage Categories</h2>
+                    <?php
+                    if (isset($_GET['status'])) {
+                        if ($_GET['status'] == 'added') {
+                            echo '<div class="alert-message alert-success">Category successfully added!</div>';
+                        } elseif ($_GET['status'] == 'deleted') {
+                            echo '<div class="alert-message alert-success">Category successfully deleted!</div>';
+                        }
+                    }
+                    if (isset($_GET['error'])) {
+                        if ($_GET['error'] == 'empty_fields') {
+                            echo '<div class="alert-message alert-danger">Error: All fields are required.</div>';
+                        }
+                    }
+                    ?>
+                    <form method="POST" action="manage_categories.php" style="margin-bottom: 2rem;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 1rem; align-items: end;">
+                            <div>
+                                <label for="category_name" style="display:block; margin-bottom: .5rem; font-weight: 500;">Category Name</label>
+                                <input type="text" id="category_name" name="category_name" placeholder="e.g., Course" required style="width: 100%; padding: 0.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                            </div>
+                            <div>
+                                <label for="category_icon" style="display:block; margin-bottom: .5rem; font-weight: 500;">Font Awesome Icon</label>
+                                <input type="text" id="category_icon" name="category_icon" placeholder="e.g., fas fa-graduation-cap" required style="width: 100%; padding: 0.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                            </div>
+                            <div>
+                                <label for="category_subtitle" style="display:block; margin-bottom: .5rem; font-weight: 500;">Subtitle</label>
+                                <input type="text" id="category_subtitle" name="category_subtitle" placeholder="e.g., Premium Courses" required style="width: 100%; padding: 0.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                            </div>
+                            <button type="submit" name="add_category" style="padding: 0.5rem 1rem; border: none; background-color: var(--primary-color); color: white; border-radius: var(--border-radius); cursor: pointer; height: fit-content;">Add Category</button>
+                        </div>
+                    </form>
+
+                    <div class="orders-table-container">
+                        <table class="orders-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Icon</th>
+                                    <th>Subtitle</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $categories_file_path = __DIR__ . '/categories.json';
+                                if (file_exists($categories_file_path)) {
+                                    $categories_json = file_get_contents($categories_file_path);
+                                    $categories = json_decode($categories_json, true);
+                                    if (is_array($categories)) {
+                                        foreach ($categories as $category) {
+                                            echo '<tr>';
+                                            echo '<td data-label="Name">' . htmlspecialchars($category['name']) . '</td>';
+                                            echo '<td data-label="Icon">' . htmlspecialchars($category['icon']) . '</td>';
+                                            echo '<td data-label="Subtitle">' . htmlspecialchars($category['subtitle']) . '</td>';
+                                            echo '<td data-label="Action">
+                                                    <form method="POST" action="manage_categories.php" onsubmit="return confirm(\'Are you sure you want to delete this category?\');">
+                                                        <input type="hidden" name="category_name" value="' . htmlspecialchars($category['name']) . '">
+                                                        <button type="submit" name="delete_category" class="action-btn action-btn-delete" style="color: #dc3545 !important; border-color: #dc3545;">Delete</button>
+                                                    </form>
+                                                  </td>';
+                                            echo '</tr>';
+                                        }
+                                    }
+                                }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            <?php else: ?>
                 <div class="content-card">
                     <h2 class="card-title">Performance Overview</h2>
                     <div class="stats-period-selector">
@@ -514,6 +588,7 @@ $current_total_pending_all_time = getCurrentTotalPendingOrders($all_site_orders_
                         <div class="stat-card" id="stat_total_revenue_card"><h4>Total Revenue</h4><p id="stat_total_revenue">৳0.00</p></div>
                     </div>
                 </div>
+                <?php endif; ?>
                 <div class="content-card">
                     <h2 class="card-title">Manage Orders</h2>
                     <?php if ($json_load_error): ?>
