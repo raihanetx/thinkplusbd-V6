@@ -41,6 +41,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $products[$product_index]['longDescription'] = $_POST['longDescription'];
             $products[$product_index]['price'] = (float)$_POST['price'];
 
+            $durations = [];
+            if (isset($_POST['durations']) && is_array($_POST['durations'])) {
+                foreach ($_POST['durations'] as $duration) {
+                    if (!empty($duration['label']) && !empty($duration['price'])) {
+                        $durations[] = [
+                            'label' => $duration['label'],
+                            'price' => (float)$duration['price']
+                        ];
+                    }
+                }
+            }
+            $products[$product_index]['durations'] = $durations;
+
             if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                 $upload_dir = 'product_images/';
                 $file_name = basename($_FILES['image']['name']);

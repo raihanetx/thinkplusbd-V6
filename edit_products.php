@@ -68,9 +68,10 @@ $products = get_products();
             <div class="admin-page-content">
                 <div class="content-card">
                     <h2 class="card-title">Select a Category to Edit Products</h2>
-                    <form method="GET" action="edit_products.php">
-                        <select name="category" onchange="this.form.submit()">
-                            <option value="">-- Select Category --</option>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <form method="GET" action="edit_products.php" style="margin-bottom: 0;">
+                            <select name="category" onchange="this.form.submit()">
+                                <option value="">-- Select Category --</option>
                             <?php foreach ($categories as $category): ?>
                                 <option value="<?php echo htmlspecialchars($category['name']); ?>" <?php if ($selected_category === $category['name']) echo 'selected'; ?>>
                                     <?php echo htmlspecialchars($category['name']); ?>
@@ -78,6 +79,8 @@ $products = get_products();
                             <?php endforeach; ?>
                         </select>
                     </form>
+                    <a href="add_product.php" class="action-btn" style="text-decoration: none;">Add New Product</a>
+                    </div>
                 </div>
 
                 <?php if ($selected_category): ?>
@@ -88,7 +91,7 @@ $products = get_products();
                             <thead>
                                 <tr>
                                     <th>Product Name</th>
-                                    <th>Action</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -98,7 +101,13 @@ $products = get_products();
                                         if (strtolower($product['category']) === strtolower($selected_category)) {
                                             echo '<tr>';
                                             echo '<td data-label="Product Name">' . htmlspecialchars($product['name']) . '</td>';
-                                            echo '<td data-label="Action"><a href="product_editor.php?id=' . $product['id'] . '" class="action-btn">Edit</a></td>';
+                                            echo '<td data-label="Actions">
+                                                    <a href="product_editor.php?id=' . $product['id'] . '" class="action-btn">Edit</a>
+                                                    <form method="POST" action="delete_product.php" style="display:inline;" onsubmit="return confirm(\'Are you sure you want to delete this product?\');">
+                                                        <input type="hidden" name="product_id" value="' . $product['id'] . '">
+                                                        <button type="submit" class="action-btn action-btn-delete" style="color: #dc3545 !important; border-color: #dc3545;">Delete</button>
+                                                    </form>
+                                                  </td>';
                                             echo '</tr>';
                                         }
                                     }
