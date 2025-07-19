@@ -88,8 +88,24 @@ if (!$product_to_edit) {
                         </div>
 
                         <div class="form-group" style="margin-bottom: 1rem;">
-                            <label for="price">Price</label>
+                            <label for="price">Price (for products without duration)</label>
                             <input type="number" step="0.01" name="price" id="price" value="<?php echo htmlspecialchars($product_to_edit['price']); ?>" class="form-control" style="width: 100%; padding: 0.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label>Durations and Prices</label>
+                            <div id="durations-container">
+                                <?php if (!empty($product_to_edit['durations'])): ?>
+                                    <?php foreach ($product_to_edit['durations'] as $index => $duration): ?>
+                                        <div class="duration-item" style="display: flex; gap: 1rem; margin-bottom: 0.5rem;">
+                                            <input type="text" name="durations[<?php echo $index; ?>][label]" placeholder="Label (e.g., 1 Month)" value="<?php echo htmlspecialchars($duration['label']); ?>" style="width: 100%; padding: 0.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                                            <input type="number" step="0.01" name="durations[<?php echo $index; ?>][price]" placeholder="Price" value="<?php echo htmlspecialchars($duration['price']); ?>" style="width: 100%; padding: 0.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                                            <button type="button" class="remove-duration-btn" style="padding: 0.5rem 1rem; border: none; background-color: #dc3545; color: white; border-radius: var(--border-radius); cursor: pointer;">Remove</button>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
+                            <button type="button" id="add-duration-btn" style="padding: 0.5rem 1rem; border: none; background-color: var(--primary-color); color: white; border-radius: var(--border-radius); cursor: pointer; margin-top: 0.5rem;">Add Duration</button>
                         </div>
 
                         <div class="form-group" style="margin-bottom: 1rem;">
@@ -110,6 +126,35 @@ if (!$product_to_edit) {
             </div>
         </main>
     </div>
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        tinymce.init({
+            selector: '#longDescription'
+        });
+    </script>
     <script src="admin_dashboard.js"></script>
+    <script>
+        document.getElementById('add-duration-btn').addEventListener('click', function() {
+            const container = document.getElementById('durations-container');
+            const index = container.children.length;
+            const newItem = document.createElement('div');
+            newItem.className = 'duration-item';
+            newItem.style.display = 'flex';
+            newItem.style.gap = '1rem';
+            newItem.style.marginBottom = '0.5rem';
+            newItem.innerHTML = `
+                <input type="text" name="durations[${index}][label]" placeholder="Label (e.g., 1 Month)" style="width: 100%; padding: 0.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                <input type="number" step="0.01" name="durations[${index}][price]" placeholder="Price" style="width: 100%; padding: 0.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                <button type="button" class="remove-duration-btn" style="padding: 0.5rem 1rem; border: none; background-color: #dc3545; color: white; border-radius: var(--border-radius); cursor: pointer;">Remove</button>
+            `;
+            container.appendChild(newItem);
+        });
+
+        document.getElementById('durations-container').addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-duration-btn')) {
+                e.target.closest('.duration-item').remove();
+            }
+        });
+    </script>
 </body>
 </html>
